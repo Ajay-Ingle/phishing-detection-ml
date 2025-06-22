@@ -114,7 +114,7 @@ pip install -r requirements.txt
 ```bash
     python gui.py
 ```
-    ![alt text](image.png)
+![alt text](image.png)
 
 📊 Dataset
 Total URLs: 10,000
