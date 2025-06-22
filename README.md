@@ -77,21 +77,7 @@ The extracted features are passed into a **pre-trained XGBoost classification mo
 
 ## 📁 Project Structure
 
-Phishing-Detection-System/
-│
-├── dataset/
-│ └── CombinedDataset.csv # Final dataset
-│
-├── FeatureExtractingFunction.py # Standalone feature extractors
-├── feature_extractor.py # Main extraction module
-│
-├── PhishingDetectionModel&Training.ipynb # Training notebook
-├── FeatureExtractingModule.ipynb # EDA and analysis
-│
-├── XGBoostClassifier.pickle.dat # Trained model file
-├── predict.py # CLI interface
-├── gui.py # GUI application
-└── README.md # Project documentation
+![alt text](image-1.png)
 
 
 ---
