@@ -1,0 +1,33 @@
+# Byte-compiled Python files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+env/
+
+# Model files
+*.pickle
+*.pickle.dat
+*.joblib
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Output files
+*.out
+*.csv
+*.tsv
+
+# Other temporary files
+*.swp
+*.bak
