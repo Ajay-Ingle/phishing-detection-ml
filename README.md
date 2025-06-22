@@ -6,15 +6,15 @@ This project is a complete end-to-end system designed to detect phishing website
 
 ## 📑 Table of Contents
 
-- [Overview](#overview)
-- [How It Works](#how-it-works)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Dataset](#dataset)
-- [Model Performance](#model-performance)
+- [Overview](#-overview)
+- [How It Works](#-how-it-works)
+- [Features](#-features)
+- [Technology Stack](#-technology-stack)
+- [Project Structure](#-project-structure)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [Dataset](#-dataset)
+- [Model Performance](#-model-performance)
 
 ---
 
