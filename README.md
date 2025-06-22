@@ -100,14 +100,20 @@ source venv/bin/activate
 ```
 
 3. Install Dependencies
+```bash
 pip install -r requirements.txt
+```
 
 🚀 Usage
 🔹 1. Command-Line Interface (CLI)
+```bash
     python predict.py
+```
 
 🔹 2. Graphical User Interface (GUI)
+```bash
     python gui.py
+```
     ![alt text](image.png)
 
 📊 Dataset
