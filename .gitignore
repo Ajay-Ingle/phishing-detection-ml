@@ -31,3 +31,5 @@ Thumbs.db
 # Other temporary files
 *.swp
 *.bak
+
+.ipynb_checkpoints
