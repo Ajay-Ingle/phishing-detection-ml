@@ -2,6 +2,10 @@
 __pycache__/
 *.py[cod]
 
+
+# Ignore Jupyter Notebook autosave checkpoints
+.ipynb_checkpoints/
+
 # Virtual environment
 venv/
 env/
@@ -32,4 +36,3 @@ Thumbs.db
 *.swp
 *.bak
 
-.ipynb_checkpoints
