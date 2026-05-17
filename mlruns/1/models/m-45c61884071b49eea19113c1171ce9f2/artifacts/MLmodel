@@ -1,0 +1,22 @@
+artifact_path: file:///D:/phishing-detection-ml/mlruns/1/models/m-45c61884071b49eea19113c1171ce9f2/artifacts
+flavors:
+  python_function:
+    data: model.ubj
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.12.1
+  xgboost:
+    code: null
+    data: model.ubj
+    model_class: xgboost.sklearn.XGBClassifier
+    model_format: ubj
+    xgb_version: 3.2.0
+mlflow_version: 3.12.0
+model_id: m-45c61884071b49eea19113c1171ce9f2
+model_size_bytes: 70901
+model_uuid: m-45c61884071b49eea19113c1171ce9f2
+prompts: null
+run_id: 9841c137449344c89ead83b33870d942
+utc_time_created: '2026-05-17 11:22:36.893899'
