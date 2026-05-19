@@ -6,6 +6,10 @@ __pycache__/
 venv/
 env/
 
+# Ignore local MLflow experiment runs and databases
+mlflow.db
+mlruns/
+
 # Model files
 *.pickle
 *.pickle.dat
