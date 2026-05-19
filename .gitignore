@@ -6,14 +6,25 @@ __pycache__/
 venv/
 env/
 
+# Data and Datasets (Crucial for ML)
+data/
+dataset/
+datasets/
+
 # Model files
 *.pickle
 *.pickle.dat
 *.joblib
 
+# MLflow Tracking & Artifacts (Fixed)
+mlruns/
+mlflow/
+mlflow.db
+
 # Logs and temporary files
 *.log
 *.tmp
+.ipynb_checkpoints/
 
 # OS-specific files
 .DS_Store
@@ -31,5 +42,3 @@ Thumbs.db
 # Other temporary files
 *.swp
 *.bak
-
-.ipynb_checkpoints
