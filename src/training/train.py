@@ -1,6 +1,8 @@
 # src/training/train.py
-import pandas as pd
+import mlflow
+import mlflow.xgboost
 
+import pandas as pd
 from typing import Tuple, Dict, Any
 
 from xgboost import XGBClassifier
@@ -37,14 +39,60 @@ def fit_model(    x_train: pd.DataFrame,
     hyperparameters: Dict[str, Any] = None
 ) -> XGBClassifier:
     if hyperparameters is None:
-        hyperparameters= {
-            'n_estimators': 100,
-            'max_depth': 5,
-            'learning_rate': 0.1,
-            'eval_metric': 'logloss'
+        hyperparameters = {
+            "learning_rate": 0.2,
+            "max_depth": 5,
+            "n_estimators": 50,
+            "eval_metric": "mlogloss"
         }
-    model = XGBClassifier(**hyperparameters)
-    model.fit(x_train, y_train)
+
+    #MLFlow experiment
+
+    mlflow.set_experiment("Phishing_detection")
+
+    with mlflow.start_run(
+        run_name="xgboost_baseline_v2"
+    ):
+        mlflow.set_tag("developer","Ajay")
+        mlflow.set_tag("branch","dev")
+        mlflow.set_tag("stage", "experimentation")
+        mlflow.set_tag("model_type", "XGBoost")
+
+        #log parameters
+        mlflow.log_params(hyperparameters)
+
+        #Train the model
+        model = XGBClassifier(**hyperparameters)
+        model.fit(x_train, y_train)
+
+        #Predictions
+        predictions = model.predict(x_test)
+
+        #metrics
+        accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions)
+        recall = recall_score(y_test, predictions)
+        f1 = f1_score(y_test, predictions)
+
+        # Log metrics
+        mlflow.log_metric("accuracy", accuracy)
+        mlflow.log_metric("precision", precision)
+        mlflow.log_metric("recall", recall)
+        mlflow.log_metric("f1", f1)
+
+        #log the model
+        mlflow.xgboost.log_model(
+            xgb_model = model,
+            name = "xgboost_model"
+        )
+
+        # print results
+        print("\n Experiment metrics--")
+        print(f"Accuracy : {accuracy:.4f}")
+        print(f"Precision : {precision:.4f}")
+        print(f"Recall : {recall:.4f}")
+        print(f"F1 Score : {f1:.4f}")
+
     return model
 
 
