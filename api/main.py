@@ -5,6 +5,7 @@ import os
 
 from src.inference.predict import predict_url
 
+app = FastAPI()        # ← THIS LINE WAS MISSING
 
 
 @app.get("/")
