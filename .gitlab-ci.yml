@@ -1,0 +1,62 @@
+stages:
+  - test
+  - train
+  - docker-build
+
+variables:
+  IMAGE_NAME: "phishing-detection-ml"
+  # This uses your defined image name and tags it with the unique git commit hash
+  CONTAINER_IMAGE: "$CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA"
+  # Targets a release tag if you decide to push to a main/master branch later
+  CONTAINER_LATEST_IMAGE: "$CI_REGISTRY_IMAGE/$IMAGE_NAME:latest"
+
+before_script:
+  - python --version
+
+# -------------------------
+# TEST STAGE
+# -------------------------
+test-job:
+  stage: test
+  image: python:3.11
+  script:
+    - pip install -r requirements/dev.txt
+    - python -c "from api.main import app"
+    - echo "FastAPI import validation successful"
+
+# -------------------------
+# TRAINING STAGE
+# -------------------------
+training-job:
+  stage: train
+  image: python:3.11
+  script:
+    - pip install -r requirements/dev.txt
+    - python -m src.training.pipeline
+
+# -------------------------
+# DOCKER BUILD STAGE
+# -------------------------
+docker-build-job:
+  stage: docker-build
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+  # Overriding the global python --version before_script because this container runs Docker, not Python
+  before_script:
+    - docker version
+  script:
+    # 1. Log into GitLab's Container Registry using secure built-in CI variables
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    
+    # 2. Build the image using the standardized registry path
+    - docker build -t $CONTAINER_IMAGE -t $CONTAINER_LATEST_IMAGE .
+    
+    # 3. List images to verify local build success
+    - docker images
+    
+    # 4. Push the images to your GitLab repository registry so your deployment environments can pull them
+    - docker push $CONTAINER_IMAGE
+    - docker push $CONTAINER_LATEST_IMAGE
