@@ -28,6 +28,7 @@ test-job:
 training-job:
   stage: train
   image: python:3.11
+  when: manual
   script:
     - pip install -r requirements/dev.txt
     - python -m src.training.pipeline
