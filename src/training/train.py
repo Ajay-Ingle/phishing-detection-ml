@@ -95,25 +95,39 @@ def fit_model(
         mlflow.log_metric("recall", recall)
         mlflow.log_metric("f1", f1)
 
-        #log the model
-        mlflow.xgboost.log_model(
-            xgb_model = model,
-            name = "xgboost_model"
-        )
-
-        model_uri = f"runs:/{run.info.run_id}/xgboost_model"
-        registered_model = mlflow.register_model(
-            model_uri = model_uri,
-            name = "phishing_detector",
-        )
+        # Log the model artifact to the current run under artifact path 'xgboost_model'
+        # also request registration so the artifact is used directly when possible
+        try:
+            mlflow.xgboost.log_model(
+                xgb_model=model,
+                artifact_path="xgboost_model",
+                registered_model_name="phishing_detector"
+            )
+        except TypeError:
+            # Fallback for mlflow versions that don't support registered_model_name
+            mlflow.xgboost.log_model(
+                xgb_model=model,
+                artifact_path="xgboost_model"
+            )
 
         client = MlflowClient()
-        client.transition_model_version_stage(
-            name = registered_model.name,
-            version = registered_model.version,
-            stage = "Production",
-            archive_existing_versions = True
-        )
+        # Verify artifacts were written into the run before attempting explicit registration
+        artifacts = client.list_artifacts(run.info.run_id, path="xgboost_model")
+        if artifacts:
+            model_uri = f"runs:/{run.info.run_id}/xgboost_model"
+            registered_model = mlflow.register_model(
+                model_uri=model_uri,
+                name="phishing_detector",
+            )
+
+            client.transition_model_version_stage(
+                name=registered_model.name,
+                version=registered_model.version,
+                stage="Production",
+                archive_existing_versions=True
+            )
+        else:
+            print("Warning: no artifacts found under 'xgboost_model' for this run; skipping explicit registration.")
 
         # print results
         print("\n Experiment metrics--")
