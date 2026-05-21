@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+gunicorn
+prometheus-fastapi-instrumentator
+fastapi
+uvicorn
+pandas
+numpy
+scikit-learn
+xgboost
+mlflow
+joblib
+pydantic
+python-multipart
+python-whois
