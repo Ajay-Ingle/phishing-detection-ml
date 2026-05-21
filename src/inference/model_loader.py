@@ -1,10 +1,15 @@
 # src/inference/model_loader.py
 import os
-import joblib
 from typing import Any
 
+import mlflow
+import mlflow.pyfunc
+
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+
 class ModelLoaderSingleton:
-    """Thread-safe instantiation construct managing localized operational model persistence loops."""
+    """Thread-safe loader managing an MLflow-registry-backed model instance."""
     _instance = None
     _model = None
 
@@ -13,11 +18,11 @@ class ModelLoaderSingleton:
             cls._instance = super(ModelLoaderSingleton, cls).__new__(cls, *args, **kwargs)
         return cls._instance
 
-    def load_model(self, model_path: str) -> Any:
-        """Loads model into active working memory space if not already allocated."""
+    def load_model(self, model_uri: str) -> Any:
+        """Load a model from the MLflow registry into memory once."""
         if self._model is None:
-            if not os.path.exists(model_path):
-                raise FileNotFoundError(f"Target model weight asset structure absent from disk index: {model_path}")
-            self._model = joblib.load(model_path)
-            print(f"Model instance deserialized. Baseline active from space target memory context: {model_path}")
+            if not model_uri:
+                raise ValueError("A valid MLflow model URI is required.")
+            self._model = mlflow.pyfunc.load_model(model_uri)
+            print(f"Model loaded from MLflow registry: {model_uri}")
         return self._model

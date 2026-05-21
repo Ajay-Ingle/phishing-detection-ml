@@ -7,9 +7,9 @@
 # src/training/train.py
 import mlflow
 import mlflow.xgboost
+from mlflow.tracking import MlflowClient
 
 import pandas as pd
-
 from typing import Tuple, Dict, Any
 
 from sklearn.model_selection import train_test_split
@@ -67,7 +67,7 @@ def fit_model(
 
     with mlflow.start_run(
         run_name="xgboost_baseline_v2"
-    ):
+    ) as run:
         mlflow.set_tag("developer","Ajay")
         mlflow.set_tag("branch","dev")
         mlflow.set_tag("stage", "experimentation")
@@ -99,6 +99,20 @@ def fit_model(
         mlflow.xgboost.log_model(
             xgb_model = model,
             name = "xgboost_model"
+        )
+
+        model_uri = f"runs:/{run.info.run_id}/xgboost_model"
+        registered_model = mlflow.register_model(
+            model_uri = model_uri,
+            name = "phishing_detector",
+        )
+
+        client = MlflowClient()
+        client.transition_model_version_stage(
+            name = registered_model.name,
+            version = registered_model.version,
+            stage = "Production",
+            archive_existing_versions = True
         )
 
         # print results
