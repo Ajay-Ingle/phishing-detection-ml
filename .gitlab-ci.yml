@@ -38,6 +38,7 @@ training-job:
 # -------------------------
 docker-build-job:
   stage: docker-build
+  needs: ["test-job"]
   image: docker:latest
   services:
     - docker:dind
