@@ -2,7 +2,7 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-COPY requirements/prod.txt .
+COPY requirements/ ./requirements/
 
 RUN pip install --no-cache-dir -r prod.txt
 
