@@ -4,9 +4,13 @@ import os
 import joblib
 import mlflow
 import mlflow.xgboost
+from dotenv import load_dotenv
 
 from sklearn.model_selection import train_test_split
 from src.training import train, evaluate
+
+# Load environment variables from .env file
+load_dotenv()
 
 def run_training_pipeline(data_path: str, model_output_dir: str):
     """Orchestrates structural step tasks handling framework data runs recursively."""
@@ -29,6 +33,14 @@ def run_training_pipeline(data_path: str, model_output_dir: str):
     }
 
     # mlflow experiment setup
+    # Configure MLflow tracking URI from environment
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+    if tracking_uri:
+        mlflow.set_tracking_uri(tracking_uri)
+        print(f"✓ MLflow tracking URI configured: {tracking_uri}")
+    else:
+        print("⚠ MLFLOW_TRACKING_URI not set. Using default MLflow configuration.")
+    
     mlflow.set_experiment("Phishing_Detection")
 
     with mlflow.start_run(run_name="xgboost_pipeline_v1"):
