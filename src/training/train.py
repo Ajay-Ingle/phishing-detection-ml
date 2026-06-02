@@ -1,11 +1,17 @@
 # src/training/train.py
+import os
 import mlflow
 import mlflow.xgboost
+from dotenv import load_dotenv
 
 import pandas as pd
 from typing import Tuple, Dict, Any
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 from xgboost import XGBClassifier
+
+# Load environment variables from .env file
+load_dotenv()
 
 # DATA LOADING
 
@@ -46,52 +52,26 @@ def fit_model(    x_train: pd.DataFrame,
             "eval_metric": "mlogloss"
         }
 
-    #MLFlow experiment
+    # Log tags and parameters to the active MLflow run (managed by caller)
+    mlflow.set_tag("developer", "Ajay")
+    mlflow.set_tag("branch", "dev")
+    mlflow.set_tag("stage", "experimentation")
+    mlflow.set_tag("model_type", "XGBoost")
 
-    mlflow.set_experiment("Phishing_detection")
+    # Log hyperparameters
+    mlflow.log_params(hyperparameters)
 
-    with mlflow.start_run(
-        run_name="xgboost_baseline_v2"
-    ):
-        mlflow.set_tag("developer","Ajay")
-        mlflow.set_tag("branch","dev")
-        mlflow.set_tag("stage", "experimentation")
-        mlflow.set_tag("model_type", "XGBoost")
+    # Train the model
+    model = XGBClassifier(**hyperparameters)
+    model.fit(x_train, y_train)
 
-        #log parameters
-        mlflow.log_params(hyperparameters)
+    # Log the trained model to the active run
+    mlflow.xgboost.log_model(
+        xgb_model=model,
+        name="xgboost_model"
+    )
 
-        #Train the model
-        model = XGBClassifier(**hyperparameters)
-        model.fit(x_train, y_train)
-
-        #Predictions
-        predictions = model.predict(x_test)
-
-        #metrics
-        accuracy = accuracy_score(y_test, predictions)
-        precision = precision_score(y_test, predictions)
-        recall = recall_score(y_test, predictions)
-        f1 = f1_score(y_test, predictions)
-
-        # Log metrics
-        mlflow.log_metric("accuracy", accuracy)
-        mlflow.log_metric("precision", precision)
-        mlflow.log_metric("recall", recall)
-        mlflow.log_metric("f1", f1)
-
-        #log the model
-        mlflow.xgboost.log_model(
-            xgb_model = model,
-            name = "xgboost_model"
-        )
-
-        # print results
-        print("\n Experiment metrics--")
-        print(f"Accuracy : {accuracy:.4f}")
-        print(f"Precision : {precision:.4f}")
-        print(f"Recall : {recall:.4f}")
-        print(f"F1 Score : {f1:.4f}")
+    print("\nModel training complete and logged to MLflow.")
 
     return model
 

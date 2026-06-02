@@ -9,3 +9,4 @@ joblib
 pydantic
 python-multipart
 python-whois
+python-dotenv
