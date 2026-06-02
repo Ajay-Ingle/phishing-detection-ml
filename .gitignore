@@ -45,3 +45,6 @@ Thumbs.db
 # Other temporary files
 *.swp
 *.bak
+
+#env file (contains sensitive information)
+.env
