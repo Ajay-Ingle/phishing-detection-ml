@@ -67,18 +67,11 @@ deploy-job:
     - apk add --no-cache openssh-client file
 
   script:
-    - ls -l "$EC2_SSH_KEY"
-    - file "$EC2_SSH_KEY"
-    - head -n 2 "$EC2_SSH_KEY"
-
     - chmod 600 "$EC2_SSH_KEY"
 
-    - ssh \
-        -i "$EC2_SSH_KEY" \
-        -o StrictHostKeyChecking=no \
-        -p "$EC2_PORT" \
-        "$EC2_USER@$EC2_HOST" \
-        "echo Connected Successfully"
-
+    - echo "HOST=$EC2_HOST"
+    - echo "USER=$EC2_USER"
+    - echo "PORT=$EC2_PORT"
+    - ssh -i "$EC2_SSH_KEY" -o StrictHostKeyChecking=no -p "$EC2_PORT" "$EC2_USER@$EC2_HOST" "echo Connected Successfully"
   only:
     - dev
