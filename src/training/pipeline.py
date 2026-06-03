@@ -62,32 +62,23 @@ def run_training_pipeline(data_path: str, model_output_dir: str):
 
         for metric_name, score_value in scores.items():
             print(f"{metric_name.title()}: {score_value:.4f}")
-            mlflow.log_metric(metric_name, score_value) 
-        
+            mlflow.log_metric(metric_name, score_value)
 
-            # 7. Save Local Model Artifact
-            os.makedirs(model_output_dir, exist_ok=True)
+        # 7. Save Local Model Artifact
+        os.makedirs(model_output_dir, exist_ok=True)
 
-            target_destination_path = os.path.join(
-                model_output_dir,
-                "XGBoostClassifier.pickle.dat"
-            )
+        target_destination_path = os.path.join(
+            model_output_dir,
+            "XGBoostClassifier.pickle.dat"
+        )
 
         joblib.dump(trained_estimator, target_destination_path)
 
-            # 8. Log Model To MLflow
-        model_info = mlflow.xgboost.log_model(
-                xgb_model=trained_estimator,
-                name="xgboost_model"
-            )
+        # 8. Log model and register it in MLflow Registry
+        model_info = train.log_and_register_model(trained_estimator)
         model_uri = model_info.model_uri
 
-        mlflow.register_model(
-            model_uri=model_uri,
-            name="phishing_detector"
-        )
-
-            # 9. Log Serialized Artifact
+        # 9. Log Serialized Artifact
         mlflow.log_artifact(target_destination_path)
 
         print(

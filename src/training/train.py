@@ -40,7 +40,8 @@ df: pd.DataFrame
 
 # MODEL TRAINING
 
-def fit_model(    x_train: pd.DataFrame,
+def fit_model(
+    x_train: pd.DataFrame,
     y_train: pd.Series,
     hyperparameters: Dict[str, Any] = None
 ) -> XGBClassifier:
@@ -52,28 +53,31 @@ def fit_model(    x_train: pd.DataFrame,
             "eval_metric": "mlogloss"
         }
 
-    # Log tags and parameters to the active MLflow run (managed by caller)
-    mlflow.set_tag("developer", "Ajay")
-    mlflow.set_tag("branch", "dev")
-    mlflow.set_tag("stage", "experimentation")
-    mlflow.set_tag("model_type", "XGBoost")
-
-    # Log hyperparameters
-    mlflow.log_params(hyperparameters)
-
     # Train the model
     model = XGBClassifier(**hyperparameters)
     model.fit(x_train, y_train)
 
-    # Log the trained model to the active run
-    mlflow.xgboost.log_model(
+    print("\nModel training complete.")
+    return model
+
+
+def log_and_register_model(
+    model: XGBClassifier,
+    name: str = "phishing_detector"
+):
+    """Log the trained model to MLflow and register it in the model registry."""
+    model_info = mlflow.xgboost.log_model(
         xgb_model=model,
         name="xgboost_model"
     )
 
-    print("\nModel training complete and logged to MLflow.")
+    mlflow.register_model(
+        model_uri=model_info.model_uri,
+        name=name
+    )
 
-    return model
+    print(f"✓ Model logged and registered as '{name}' in MLflow Registry.")
+    return model_info
 
 
 
