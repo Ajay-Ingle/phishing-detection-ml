@@ -18,6 +18,7 @@ from urllib.parse import urlparse
 
 from src.features import feature_extractor
 from src.inference.model_loader import ModelLoaderSingleton
+from src.monitoring.metrics import prediction_counter, phishing_counter
 
 DEFAULT_MLFLOW_MODEL_URI = os.getenv(
     "MLFLOW_MODEL_URI", "models:/phishing_detector/Production"
@@ -35,8 +36,13 @@ def predict_url(url: str, model_uri: str = DEFAULT_MLFLOW_MODEL_URI) -> int:
         whois_response = None
 
     processed_features = feature_extractor.feature_extraction(url, whois_response)
-    prediction = model.predict([processed_features])[0]
-    return int(prediction)
+    prediction = int(model.predict([processed_features])[0])
+
+    prediction_counter.inc()
+    if prediction == 1:
+        phishing_counter.inc()
+
+    return prediction
 
 if __name__ == "__main__":
     sample_target_url = input("Enter a URL to evaluate: ")

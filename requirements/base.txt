@@ -10,3 +10,4 @@ pydantic
 python-multipart
 python-whois
 python-dotenv
+prometheus-client

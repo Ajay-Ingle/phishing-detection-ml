@@ -3,9 +3,11 @@ from pydantic import BaseModel
 from typing import Optional
 import os
 
+from prometheus_fastapi_instrumentator import Instrumentator
 from src.inference.predict import predict_url
 
-app = FastAPI()        # ← THIS LINE WAS MISSING
+app = FastAPI()
+Instrumentator().instrument(app).expose(app)
 
 
 @app.get("/")
