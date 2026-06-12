@@ -74,7 +74,7 @@ deploy-job:
         docker pull $CONTAINER_IMAGE &&
         docker stop phishing-api || true &&
         docker rm phishing-api || true &&
-        docker run -d --name phishing-api -p 8000:8000 $CONTAINER_IMAGE
+        docker run -d \  --name phishing-api \  --network mlops-network \  -p 8000:8000 \  $CONTAINER_IMAGE
       "
 
   only:
