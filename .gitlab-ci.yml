@@ -1,0 +1,81 @@
+stages:
+  - test
+  - train
+  - docker-build
+  - deploy
+
+variables:
+  IMAGE_NAME: "phishing-detection-ml"
+  CONTAINER_IMAGE: "$CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA"
+  CONTAINER_LATEST_IMAGE: "$CI_REGISTRY_IMAGE/$IMAGE_NAME:latest"
+  EC2_PORT: "22"
+
+before_script:
+  - python --version
+
+# -------------------------
+# TEST STAGE
+# -------------------------
+test-job:
+  stage: test
+  image: python:3.11
+  script:
+    - pip install -r requirements/dev.txt
+    - python -c "from api.main import app"
+    - echo "FastAPI import validation successful"
+
+# -------------------------
+# TRAINING STAGE
+# -------------------------
+training-job:
+  stage: train
+  image: python:3.11
+  when: manual
+  script:
+    - pip install -r requirements/dev.txt
+    - python -m src.training.pipeline
+
+# -------------------------
+# DOCKER BUILD STAGE
+# -------------------------
+docker-build-job:
+  stage: docker-build
+  needs: ["test-job"]
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"    
+  before_script:
+    - docker version
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - docker build -t $CONTAINER_IMAGE -t $CONTAINER_LATEST_IMAGE .
+    - docker images
+    - docker push $CONTAINER_IMAGE
+    - docker push $CONTAINER_LATEST_IMAGE
+
+# -------------------------
+# DEPLOYMENT STAGE
+# -------------------------
+deploy-job:
+  stage: deploy
+  image: alpine:latest
+  needs: ["docker-build-job"]
+
+  before_script:
+    - apk add --no-cache openssh-client
+
+  script:
+    - chmod 600 "$EC2_SSH_KEY"
+
+    - ssh -i "$EC2_SSH_KEY" -o StrictHostKeyChecking=no -p "$EC2_PORT" "$EC2_USER@$EC2_HOST" "
+        echo '$CI_REGISTRY_PASSWORD' | docker login $CI_REGISTRY -u '$CI_REGISTRY_USER' --password-stdin &&
+        docker pull $CONTAINER_IMAGE &&
+        docker stop phishing-api || true &&
+        docker rm phishing-api || true &&
+        docker run -d \  --name phishing-api \  --network mlops-network \  -p 8000:8000 \  $CONTAINER_IMAGE
+      "
+
+  only:
+    - dev
