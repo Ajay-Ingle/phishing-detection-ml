@@ -69,12 +69,13 @@ deploy-job:
   script:
     - chmod 600 "$EC2_SSH_KEY"
 
-    - ssh -i "$EC2_SSH_KEY" -o StrictHostKeyChecking=no -p "$EC2_PORT" "$EC2_USER@$EC2_HOST" "
+    - |
+      ssh -i "$EC2_SSH_KEY" -o StrictHostKeyChecking=no -p "$EC2_PORT" "$EC2_USER@$EC2_HOST" "
         echo '$CI_REGISTRY_PASSWORD' | docker login $CI_REGISTRY -u '$CI_REGISTRY_USER' --password-stdin &&
         docker pull $CONTAINER_IMAGE &&
         docker stop phishing-api || true &&
         docker rm phishing-api || true &&
-        docker run -d \  --name phishing-api \  --network mlops-network \  -p 8000:8000 \  $CONTAINER_IMAGE
+        docker run -d --name phishing-api --network mlops-network -p 8000:8000 $CONTAINER_IMAGE
       "
 
   only:
