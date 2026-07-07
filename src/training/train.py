@@ -71,12 +71,15 @@ def log_and_register_model(
         name="xgboost_model"
     )
 
-    mlflow.register_model(
-        model_uri=model_info.model_uri,
-        name=name
-    )
-
-    print(f"✓ Model logged and registered as '{name}' in MLflow Registry.")
+    try:
+        mlflow.register_model(
+            model_uri=model_info.model_uri,
+            name=name
+        )
+        print(f"✓ Model logged and registered as '{name}' in MLflow Registry.")
+    except Exception as e:
+        print(f"⚠ Model logged successfully but registration failed: {str(e)}")
+    
     return model_info
 
 
